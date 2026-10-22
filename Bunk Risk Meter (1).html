@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bunk Risk Meter</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#17202c;--mute:#5d6b7d;--line:#dde3ea;--g:#16794f;--gb:#e0f3ea;--y:#8a5a00;--yb:#fdf0cf;--r:#b42323;--rb:#fbe3e3;--acc:#17202c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--card:#18202a;--ink:#eef2f7;--mute:#9aa8ba;--line:#2a3543;--g:#4cd194;--gb:#12372a;--y:#f0b840;--yb:#3b2e0e;--r:#ff7b7b;--rb:#421a1a;--acc:#eef2f7;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f141b;--card:#18202a;--ink:#eef2f7;--mute:#9aa8ba;--line:#2a3543;--g:#4cd194;--gb:#12372a;--y:#f0b840;--yb:#3b2e0e;--r:#ff7b7b;--rb:#421a1a;--acc:#eef2f7;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:clamp(28px,6vw,44px);margin:0;letter-spacing:-.02em;font-weight:800}
+.sub{color:var(--mute);margin:4px 0 20px;max-width:56ch}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.sum{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px}
+.chip{padding:6px 12px;border-radius:99px;font-weight:600;font-size:14px}
+.chip.g{background:var(--gb);color:var(--g)}.chip.y{background:var(--yb);color:var(--y)}.chip.r{background:var(--rb);color:var(--r)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:20px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;align-items:end}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:4px}
+input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+input:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer}
+button.pri{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+button.sm{padding:6px 10px;font-size:14px}
+.err{color:var(--r);font-size:14px;margin:8px 0 0;min-height:1em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--c);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.g{--c:var(--g)}.card.y{--c:var(--y)}.card.r{--c:var(--r)}
+.hd{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.nm{font-weight:800;font-size:18px;line-height:1.2}.cd{color:var(--mute);font-size:13px}
+.tag{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;background:var(--bg);color:var(--c)}
+.g .tag{background:var(--gb)}.y .tag{background:var(--yb)}.r .tag{background:var(--rb)}
+.big{display:flex;align-items:baseline;gap:8px}
+.big b{font-size:52px;line-height:1;font-weight:800;color:var(--c);letter-spacing:-.03em}
+.big span{color:var(--mute);font-size:15px}
+.bar{position:relative;height:10px;border-radius:99px;background:var(--line);overflow:visible}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--c)}
+.bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.msg{font-size:14px;margin:0}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.sim{border-top:1px dashed var(--line);padding-top:10px;font-size:14px}
+.sim input[type=range]{padding:0;accent-color:var(--c)}
+.simout{margin:6px 0 0;font-weight:600}
+.simout.bad{color:var(--r)}
+.empty{text-align:center;color:var(--mute);padding:36px 12px;border:1px dashed var(--line);border-radius:14px}
+#toasts{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--r);color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;max-width:460px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.set{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--mute)}
+.set input{width:72px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>Bunk Risk Meter</h1>
+      <p class="sub">Not just your percentage: how many classes you can still skip in each subject before you drop under the cutoff.</p>
+    </div>
+    <div class="set">
+      <label style="flex-direction:row;align-items:center;gap:8px">Cutoff %<input id="thr" type="number" min="1" max="99" value="75"></label>
+      <button id="notif" class="sm" type="button">Enable alerts</button>
+    </div>
+  </div>
+  <div class="sum" id="sum"></div>
+
+  <section class="panel">
+    <form id="f" novalidate>
+      <label>Subject name<input id="fn" required placeholder="Data Structures"></label>
+      <label>Code<input id="fc" placeholder="CS201"></label>
+      <label>Classes held<input id="fh" type="number" min="0" required placeholder="30"></label>
+      <label>Classes attended<input id="fa" type="number" min="0" required placeholder="24"></label>
+      <div class="row"><button class="pri" id="fs" type="submit">Add subject</button><button type="button" id="fx" hidden>Cancel</button></div>
+    </form>
+    <p class="err" id="err" role="alert"></p>
+  </section>
+
+  <section class="grid" id="list" aria-live="polite"></section>
+</main>
+<div id="toasts" aria-live="assertive"></div>
+
+<script>
+(function(){
+var KEY="bunk-risk-v2", subs=[], thr=75, editId=null;
+var $=function(id){return document.getElementById(id)};
+function load(){
+  try{var d=JSON.parse(localStorage.getItem(KEY)||"null");if(d){subs=d.subs||[];thr=d.thr||75;return}}catch(e){}
+  subs=[{id:1,name:"Basic Engineering",code:"ES101",held:30,att:28},{id:2,name:"Applied Chemistry",code:"CY102",held:26,att:21},{id:3,name:"Multivariable Calculus and Differential Equations",code:"MA103",held:28,att:19},{id:4,name:"Technical English Communication",code:"HS104",held:20,att:18}];
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({subs:subs,thr:thr}))}catch(e){}}
+
+/* ---- risk logic ---- */
+function risk(h,a,t){
+  t=t/100;
+  var pct=h?a/h*100:100;
+  var canMiss=Math.floor(a/t-h+1e-9);          /* max m with a/(h+m) >= t */
+  var need=0;
+  if(h&&a/h<t) need=Math.ceil((t*h-a)/(1-t)-1e-9); /* min n with (a+n)/(h+n) >= t */
+  var st=need>0?"r":(canMiss<=2?"y":"g");
+  return {pct:pct,canMiss:Math.max(canMiss,0),need:need,st:st};
+}
+function status(h,a){return risk(h,a,thr).st}
+var LBL={g:"Safe",y:"Careful",r:"Danger"};
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+/* ---- notifications ---- */
+function toast(msg){
+  var t=document.createElement("div");t.className="toast";t.textContent=msg;$("toasts").appendChild(t);
+  setTimeout(function(){t.remove()},5000);
+  try{if("Notification" in window&&Notification.permission==="granted")new Notification("Bunk Risk Meter",{body:msg})}catch(e){}
+}
+function checkFlip(before,s){
+  if(before!=="r"&&status(s.held,s.att)==="r"){
+    var r=risk(s.held,s.att,thr);
+    toast("\u26A0 "+s.name+" just turned red ("+r.pct.toFixed(1)+"%). Attend the next "+r.need+" class"+(r.need>1?"es":"")+" to recover.");
+  }
+}
+
+/* ---- render ---- */
+function render(){
+  var c={g:0,y:0,r:0},html="";
+  subs.forEach(function(s){
+    var r=risk(s.held,s.att,thr);c[r.st]++;
+    var big,unit,msg;
+    if(r.st==="r"){big=r.need;unit="classes to attend in a row to get back to "+thr+"%";msg="You are below the cutoff. Skip nothing."}
+    else{big=r.canMiss;unit=r.canMiss===1?"class you can still skip":"classes you can still skip";
+      msg=r.st==="y"?"Thin margin. One more miss and you may be in the red.":"Comfortable. Don\u2019t get careless."}
+    html+='<article class="card '+r.st+'" data-id="'+s.id+'"><div class="hd"><div><div class="nm">'+esc(s.name)+'</div><div class="cd">'+esc(s.code||"No code")+'</div></div><span class="tag">'+LBL[r.st]+'</span></div>'
+    +'<div class="big"><b>'+big+'</b><span>'+unit+'</span></div>'
+    +'<div class="bar" role="img" aria-label="Attendance '+r.pct.toFixed(1)+' percent, cutoff '+thr+' percent"><i style="width:'+Math.min(r.pct,100)+'%"></i><u style="left:'+thr+'%"></u></div>'
+    +'<div class="meta"><span>'+r.pct.toFixed(1)+'% ('+s.att+'/'+s.held+')</span><span>cutoff '+thr+'%</span></div>'
+    +'<p class="msg">'+msg+'</p>'
+    +'<div class="row"><button class="sm" data-a="att">+ Attended</button><button class="sm" data-a="mis">+ Missed</button><button class="sm" data-a="edit">Edit</button><button class="sm" data-a="del">Delete</button></div>'
+    +'<div class="sim"><label>What if I skip the next <b class="n">0</b> class(es)?<input type="range" min="0" max="8" value="0" data-a="sim"></label><p class="simout"></p></div></article>';
+  });
+  $("list").innerHTML=html||'<div class="empty">No subjects yet. Add your first one above to see how many classes you can skip.</div>';
+  $("sum").innerHTML='<span class="chip g">'+c.g+' safe</span><span class="chip y">'+c.y+' careful</span><span class="chip r">'+c.r+' in danger</span>';
+  save();
+}
+
+/* ---- events ---- */
+$("list").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var s=subs.filter(function(x){return x.id==b.closest(".card").dataset.id})[0];if(!s)return;
+  var a=b.dataset.a,before=status(s.held,s.att);
+  if(a==="att"){s.held++;s.att++}
+  else if(a==="mis"){s.held++}
+  else if(a==="del"){if(!confirm("Delete "+s.name+"?"))return;subs=subs.filter(function(x){return x!==s})}
+  else if(a==="edit"){editId=s.id;$("fn").value=s.name;$("fc").value=s.code;$("fh").value=s.held;$("fa").value=s.att;$("fs").textContent="Save changes";$("fx").hidden=false;$("fn").focus();window.scrollTo({top:0,behavior:"smooth"});return}
+  render();if(a==="mis")checkFlip(before,s);
+});
+$("list").addEventListener("input",function(e){
+  var el=e.target;if(el.dataset.a!=="sim")return;
+  var card=el.closest(".card"),s=subs.filter(function(x){return x.id==card.dataset.id})[0],k=+el.value;
+  card.querySelector(".n").textContent=k;
+  var out=card.querySelector(".simout");
+  if(!k){out.textContent="";out.className="simout";return}
+  var r=risk(s.held+k,s.att,thr),was=status(s.held,s.att);
+  var txt="You\u2019d be at "+r.pct.toFixed(1)+"% \u2192 "+(r.st==="r"?"danger: need "+r.need+" straight to recover":r.canMiss+" skip"+(r.canMiss===1?"":"s")+" left")+".";
+  if(r.st==="r"&&was!=="r")txt="\u26A0 This flips "+s.name+" to RED. "+txt;
+  out.textContent=txt;out.className="simout"+(r.st==="r"?" bad":"");
+});
+function resetForm(){editId=null;$("f").reset();$("fs").textContent="Add subject";$("fx").hidden=true;$("err").textContent=""}
+$("fx").onclick=resetForm;
+$("f").addEventListener("submit",function(e){
+  e.preventDefault();
+  var n=$("fn").value.trim(),h=parseInt($("fh").value,10),a=parseInt($("fa").value,10);
+  if(!n)return $("err").textContent="Enter a subject name.";
+  if(isNaN(h)||isNaN(a)||h<0||a<0)return $("err").textContent="Enter classes held and attended as whole numbers.";
+  if(a>h)return $("err").textContent="Attended can\u2019t be more than held.";
+  var code=$("fc").value.trim();
+  if(editId){var s=subs.filter(function(x){return x.id===editId})[0],b=status(s.held,s.att);s.name=n;s.code=code;s.held=h;s.att=a;render();checkFlip(b,s)}
+  else{subs.push({id:Date.now(),name:n,code:code,held:h,att:a});render()}
+  resetForm();
+});
+$("thr").addEventListener("change",function(){
+  var v=parseInt(this.value,10);if(!(v>=1&&v<=99)){this.value=thr;return}
+  var before=subs.map(function(s){return status(s.held,s.att)});
+  thr=v;
+  subs.forEach(function(s,i){if(before[i]!=="r"&&status(s.held,s.att)==="r")toast("\u26A0 "+s.name+" is now red at the "+thr+"% cutoff.")});
+  render();
+});
+$("notif").onclick=function(){
+  try{Notification.requestPermission().then(function(p){$("notif").textContent=p==="granted"?"Alerts on":"Alerts blocked"})}catch(e){$("notif").textContent="Not supported"}
+};
+load();$("thr").value=thr;render();
+try{if("Notification" in window&&Notification.permission==="granted")$("notif").textContent="Alerts on"}catch(e){}
+})();
+</script>
+</body>
+</html>
